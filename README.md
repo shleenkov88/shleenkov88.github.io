@@ -1,3 +1,3 @@
 # Генплан Полевая
 
-Сайт: **https://shleenkov88.github.io/plan/**
+Сайт: **https://shleenkov88.github.io/dvor/**
