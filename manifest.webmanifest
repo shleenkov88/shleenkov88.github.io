@@ -1,0 +1,32 @@
+{
+  "name": "Генплан Полевая",
+  "short_name": "Генплан",
+  "description": "Генплан ул. Полевая, д. 81 в Юже",
+  "start_url": "./",
+  "id": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4EDDC",
+  "theme_color": "#F4EDDC",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "./genplan.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
