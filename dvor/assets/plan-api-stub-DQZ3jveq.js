@@ -1,0 +1,1 @@
+async function e(){return{objects:null,showGrid:!0}}async function t(e){return{ok:!0}}export{e as loadSharedPlan,t as saveSharedPlan};
