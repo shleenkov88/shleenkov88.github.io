@@ -1154,6 +1154,7 @@
     try { localStorage.setItem(KEY, JSON.stringify(tx)); } catch (e) {}
     try { ref.set(Array.from(tx)); } catch (e) { fbWarn.style.display = "block"; }
     render();
+    stampToday(true);
   }
 
   function applyTheme(t) {
@@ -1337,11 +1338,26 @@
   };
   monthFilter.onchange = renderLists;
   searchInput.oninput = renderLists;
-  document.getElementById("date").valueAsDate = new Date();
-  fuelDate.valueAsDate = new Date();
-  marketDate.valueAsDate = new Date();
-  ymDate.valueAsDate = new Date();
-  spendDate.valueAsDate = new Date();
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  var dateIds = ["date", "fuelDate", "marketDate", "ymDate", "spendDate"];
+  var lastAutoDate = "";
+  function stampToday(force) {
+    var t = todayISO();
+    for (var i = 0; i < dateIds.length; i++) {
+      var el = document.getElementById(dateIds[i]);
+      if (!el) continue;
+      if (force || !el.value || el.value === lastAutoDate) el.value = t;
+    }
+    lastAutoDate = t;
+  }
+  stampToday(true);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") stampToday(false);
+  });
+  window.addEventListener("focus", function () { stampToday(false); });
 
   try {
     var th = localStorage.getItem(THEME);
