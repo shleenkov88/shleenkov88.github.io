@@ -269,7 +269,7 @@
     .box { border-radius: 28px; padding: 28px; width: min(400px, 100%); }
     .tabs { display: flex; gap: 8px; margin: 12px 0 16px; }
     .tabs button { padding: 10px 18px; border-radius: 999px; font-size: 14px; }
-    @media (min-width: 720px) { .grid4 { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 720px) { .grid4 { grid-template-columns: repeat(5, 1fr); } }
     .who { display: flex; justify-content: space-between; gap: 8px; }
     button.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); background: transparent; }
     #resetBtn { align-items: center; }
@@ -344,7 +344,7 @@
       padding: 6px 10px;
       box-sizing: content-box;
     }
-    .gpn-sm {
+    .gpn-sm, .ym-sm {
       height: 18px;
       width: auto;
       background: #fff;
@@ -352,6 +352,7 @@
       padding: 2px 4px;
     }
     .label.with-logo { display: flex; align-items: center; gap: 6px; }
+    #headFuel, #headYm { cursor: pointer; }
     .tiny { font-size: 12px; color: var(--muted); }
     .foot { color: var(--subtle); font-size: 12px; line-height: 1.5; margin-top: 24px; }
     .note { background: var(--elevated); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
@@ -436,9 +437,10 @@
 
 <div class="grid4">
   <div class="card"><div class="label">Пришло</div><div class="val" id="sIncome">0 ₽</div></div>
-  <div class="card"><div class="label">К разделу</div><div class="val" id="sNet">0 ₽</div></div>
+  <div class="card"><div class="label">Делим</div><div class="val" id="sNet">0 ₽</div><div class="tiny">после топлива · 70 / 30</div></div>
   <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div></div>
-  <div class="card"><div class="label with-logo"><img class="gpn-sm" src="gazprom-neft-mark.png" alt="">Топливо</div><div class="val" id="sCard">0 ₽</div></div>
+  <div class="card" id="headFuel"><div class="label with-logo"><img class="gpn-sm" src="gazprom-neft-mark.png" alt="">Топливо</div><div class="val" id="sCard">0 ₽</div><div class="tiny">на карте</div></div>
+  <div class="card" id="headYm"><div class="label with-logo"><img class="ym-sm" src="ym-mark.png" alt="">Я.Маркет</div><div class="val" id="sYmHead">0 ₽</div><div class="tiny">на депозите</div></div>
 </div>
 
 <div class="grid2">
@@ -949,6 +951,9 @@
     sNet.textContent = rub(m.net);
     sCash.textContent = rub(m.cash);
     sCard.textContent = rub(m.card);
+    sCard.className = "val " + (m.card < 0 ? "bad" : "ok");
+    sYmHead.textContent = rub(m.ymCard);
+    sYmHead.className = "val " + (m.ymCard < 0 ? "bad" : "ok");
     sFuelIn.textContent = rub(m.fuelMonth);
     sFuelOut.textContent = rub(m.fuelSpendMonth);
     sFuelCard.textContent = rub(m.card);
@@ -1129,6 +1134,8 @@
   group("#spendForm [data-spend]", "data-spend", function (v) { whoSpend = v; });
   group("#marketForm [data-who]", "data-who", function (v) { setWho(v); });
   group("#partnerWrap [data-partner]", "data-partner", function (v) { partner = v; });
+  headFuel.onclick = function () { secFuel.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  headYm.onclick = function () { secYm.scrollIntoView({ behavior: "smooth", block: "start" }); };
   document.querySelectorAll(".tabs button").forEach(function (b) {
     b.onclick = function () {
       document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.toggle("on", x === b); });
