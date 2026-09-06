@@ -1,238 +1,1031 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0a0b" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <title>Касса ООО «Нейт»</title>
-  <!-- v4-local-2026-09-03 offline -->
+  <meta name="theme-color" content="#09090b" />
+  <title>ООО «Нейт»</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <style>
     :root {
-      --bg:#0a0a0b; --surface:#141416; --elevated:#1c1c20; --fg:#f4f4f5;
-      --muted:#a1a1aa; --subtle:#71717a; --border:#2a2a30; --accent:#d4d7de;
-      --accent-fg:#0a0a0b; --ok:#7dcea0; --bad:#e08b8b; --ink:#c8ccd4;
+      --bg: #09090b;
+      --surface: rgba(24, 24, 27, 0.7);
+      --surface-hover: rgba(39, 39, 42, 0.8);
+      --elevated: rgba(39, 39, 42, 0.6);
+      --fg: #f4f4f5;
+      --muted: #a1a1aa;
+      --subtle: #71717a;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #f4f4f5;
+      --accent-fg: #09090b;
+      --ok: #34c759;
+      --bad: #ff453a;
+      --ink: #e4e4e7;
+      --shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.5);
+      --glass: blur(16px) saturate(180%);
+      --radius: 20px;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    html,body { background:var(--bg); color:var(--fg); font-family:"Segoe UI",system-ui,-apple-system,sans-serif; min-height:100%; }
-    body { padding:16px 16px 80px; max-width:760px; margin:0 auto; }
-    h1 { font-size:18px; font-weight:600; letter-spacing:-0.02em; }
-    .sub { color:var(--muted); font-size:12px; margin-top:4px; line-height:1.4; }
-    .top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; }
+    html[data-theme="light"] {
+      --bg: #eef0f3;
+      --surface: #ffffff;
+      --surface-hover: #ffffff;
+      --elevated: #f3f4f6;
+      --fg: #111113;
+      --muted: #3f3f46;
+      --subtle: #52525b;
+      --border: rgba(0, 0, 0, 0.12);
+      --accent: #111113;
+      --accent-fg: #ffffff;
+      --ok: #15803d;
+      --bad: #b42318;
+      --ink: #18181b;
+      --shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.16);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    html[data-theme="dark"] { color-scheme: dark; }
+    html[data-theme="light"] { color-scheme: light; }
+    body {
+      padding: 20px 16px 100px;
+      max-width: 760px;
+      margin: 0 auto;
+      background:
+        radial-gradient(1000px 500px at 15% -10%, rgba(120, 119, 198, 0.15), transparent 60%),
+        radial-gradient(800px 400px at 85% 20%, rgba(52, 199, 89, 0.1), transparent 50%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+    h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; }
+    h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+    .brand > div { min-width: 0; }
+    .top .ops { flex-shrink: 0; margin-left: auto; }
+    .brand-logo {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #f7f5f0;
+      box-shadow: 0 0 0 1px var(--border);
+      flex-shrink: 0;
+    }
+    .card, .box {
+      background: var(--surface);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+    .card {
+      padding: 18px;
+      margin-bottom: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
     button, input, select, textarea {
-      font:inherit; color:var(--fg); background:var(--elevated);
-      border:1px solid var(--border); border-radius:12px;
+      font: inherit;
+      color: var(--fg);
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    button { cursor:pointer; min-height:44px; }
-    .chip { padding:8px 14px; font-size:13px; background:var(--surface); }
-    .grid4,.grid2 { display:grid; gap:10px; }
-    .grid4 { grid-template-columns:1fr 1fr; }
-    .card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:14px; }
-    .label { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
-    .val { font-size:20px; font-weight:600; margin-top:4px; font-variant-numeric:tabular-nums; }
-    .tiny { font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4; }
-    .who { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-    .pct { font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); }
-    .bar { height:6px; background:var(--elevated); border-radius:99px; overflow:hidden; margin:10px 0; }
-    .bar>i { display:block; height:100%; background:var(--ink); width:0; }
-    .row { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border); gap:8px; }
-    .row:last-child { border-bottom:0; }
-    .ok { color:var(--ok); } .bad { color:var(--bad); }
-    .hint { margin:14px 0; padding:14px; border-radius:16px; border:1px solid var(--border); background:var(--surface); font-size:14px; line-height:1.5; }
-    form { display:grid; gap:12px; }
-    label { font-size:12px; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; }
-    input, select, textarea { width:100%; padding:12px 14px; min-height:44px; }
-    textarea { min-height:72px; }
-    .ops { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .op { padding:12px 8px; text-align:left; font-size:13px; font-weight:600; background:var(--surface); }
-    .op.on { outline:1px solid var(--ink); background:var(--elevated); }
-    .primary { background:var(--accent); color:var(--accent-fg); font-weight:600; border:0; }
-    .tabs { display:flex; gap:8px; margin:16px 0 12px; }
-    .tabs button { padding:8px 14px; border-radius:999px; font-size:13px; background:var(--surface); }
-    .tabs button.on { background:var(--elevated); outline:1px solid var(--ink); }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,.82); display:flex; align-items:center; justify-content:center; padding:20px; z-index:20; }
-    .box { background:var(--surface); border:1px solid var(--border); border-radius:28px; padding:24px; width:min(400px,100%); }
-    .del { background:none; border:0; color:var(--bad); min-height:auto; font-size:13px; padding:8px; }
-    ul { list-style:none; }
-    li { border-top:1px solid var(--border); padding:12px 0; display:flex; justify-content:space-between; gap:12px; }
-    @media (min-width:720px) { .grid4 { grid-template-columns:repeat(4,1fr); } .grid2 { grid-template-columns:1fr 1fr; } }
+    button, input, select, textarea, a, .donut-card, .place, .donut, svg, path {
+      -webkit-tap-highlight-color: transparent;
+    }
+    .donut-card, .place, .donut, .donut svg, .donut path {
+      outline: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .place:focus, .place:active, .donut-card:focus, .donut-card:active,
+    .donut path:focus, .donut path:active {
+      outline: none;
+      box-shadow: none;
+    }
+    button {
+      cursor: pointer;
+      min-height: 44px;
+      font-weight: 500;
+      -webkit-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+    }
+    button:focus { outline: none; }
+    button:focus-visible {
+      box-shadow: 0 0 0 3px rgba(203, 17, 171, 0.35);
+    }
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 0 0 3px rgba(203, 17, 171, 0.28);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      min-height: 46px;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--fg);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+      background: var(--surface-hover);
+    }
+    html[data-theme="light"] input:focus,
+    html[data-theme="light"] select:focus,
+    html[data-theme="light"] textarea:focus {
+      box-shadow: 0 0 0 3px rgba(17, 17, 19, 0.12);
+    }
+    html[data-theme="light"] body,
+    html[data-theme="light"] .card,
+    html[data-theme="light"] .box,
+    html[data-theme="light"] .val,
+    html[data-theme="light"] .row,
+    html[data-theme="light"] h1,
+    html[data-theme="light"] h2,
+    html[data-theme="light"] button,
+    html[data-theme="light"] input,
+    html[data-theme="light"] select,
+    html[data-theme="light"] textarea {
+      color: #111113;
+    }
+    html[data-theme="light"] .label,
+    html[data-theme="light"] .tiny,
+    html[data-theme="light"] .sub,
+    html[data-theme="light"] .pct,
+    html[data-theme="light"] .note,
+    html[data-theme="light"] .foot,
+    html[data-theme="light"] label {
+      color: #3f3f46;
+    }
+    html[data-theme="light"] .chip.on,
+    html[data-theme="light"] .op.on,
+    html[data-theme="light"] .tabs button.on,
+    html[data-theme="light"] .primary {
+      background: #111113;
+      color: #ffffff;
+    }
+    .chip, .op {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+    }
+    html[data-theme="light"] .chip,
+    html[data-theme="light"] .op {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    .chip.on, .op.on, .tabs button.on {
+      background: var(--fg);
+      color: var(--accent-fg);
+      border-color: var(--fg);
+      font-weight: 600;
+    }
+    .primary {
+      background: var(--fg);
+      color: var(--accent-fg);
+      font-weight: 600;
+      border: 0;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+      min-height: 48px;
+    }
+    input.need {
+      border-color: var(--bad) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 25%, transparent);
+    }
+    .label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .val { font-size: 22px; font-weight: 700; letter-spacing: -0.6px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .pct { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--elevated); color: var(--muted); font-weight: 600; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .row span { min-width: 0; }
+    .row b {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.3px;
+      text-align: right;
+      margin-left: auto;
+    }
+    .row:last-child { border-bottom: 0; }
+    .ok { color: var(--ok); }
+    .bad { color: var(--bad); }
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0 6px;
+    }
+    html[data-theme="light"] .progress-bar { background: rgba(0, 0, 0, 0.08); }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #30d158, #34c759);
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .grid4, .grid2, .grid3 { display: grid; gap: 12px; }
+    .grid4, .grid2 { grid-template-columns: 1fr 1fr; }
+    .grid3 { grid-template-columns: 1fr 1fr 1fr; }
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; z-index: 50;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    }
+    .box { border-radius: 28px; padding: 28px; width: min(400px, 100%); }
+    .tabs { display: flex; gap: 8px; margin: 12px 0 16px; }
+    .tabs button { padding: 10px 18px; border-radius: 999px; font-size: 14px; }
+    @media (min-width: 720px) { .grid4 { grid-template-columns: repeat(4, 1fr); } }
+    .who { display: flex; justify-content: space-between; gap: 8px; }
+    button.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); background: transparent; }
+    #resetBtn { align-items: center; }
+    form { display: grid; gap: 12px; margin-top: 12px; }
+    label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; }
+    .ops { display: flex; flex-wrap: wrap; gap: 8px; }
+    .del { background: none; border: 0; color: var(--bad); min-height: auto; font-size: 13px; padding: 8px; }
+    ul { list-style: none; }
+    li { border-top: 1px solid var(--border); padding: 12px 0; display: flex; justify-content: space-between; gap: 12px; }
+    .warn { display: none; background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); padding: 10px 12px; border-radius: 14px; margin-bottom: 12px; font-size: 13px; }
+    .mini { background: var(--elevated); border-radius: 14px; padding: 12px; }
+    .logo { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; color: #fff; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .logo-img { width: 32px; height: 32px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #111; }
+    .block-logo {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #111;
+    }
+    .ym-full {
+      height: 40px;
+      width: auto;
+      max-width: 200px;
+      background: #000;
+      border-radius: 10px;
+      padding: 4px 8px;
+      box-sizing: content-box;
+    }
+    .place {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      background: var(--elevated);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: left;
+      min-height: 0;
+      cursor: pointer;
+    }
+    .place-top { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .place-meta { flex: 1; min-width: 0; }
+    .place-bar { height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; width: 100%; }
+    html[data-theme="light"] .place-bar { background: rgba(0, 0, 0, 0.08); }
+    .place-bar > span { display: block; height: 100%; border-radius: 999px; transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+    .place.on, .place.hot { background: var(--surface-hover); box-shadow: 0 0 0 1px var(--fg); }
+    .donut-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .donut {
+      width: 112px;
+      height: 112px;
+      min-width: 112px;
+      min-height: 112px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .donut svg { display: block; width: 112px; height: 112px; }
+    .donut path { cursor: pointer; transition: opacity 0.2s ease, filter 0.2s ease; }
+    .donut path.hot { filter: brightness(1.15); }
+    .donut-track { stroke: #c4c4cc; }
+    html[data-theme="dark"] .donut-track { stroke: #3f3f46; }
+    .donut-card { opacity: 0.78; }
+    .donut-card.on { opacity: 1; }
+    .fuel-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .fuel-head h2 { margin: 0; }
+    .gpn-full {
+      height: 40px;
+      width: auto;
+      max-width: 200px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      box-sizing: content-box;
+    }
+    .gpn-sm {
+      height: 18px;
+      width: auto;
+      background: #fff;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    .label.with-logo { display: flex; align-items: center; gap: 6px; }
+    .tiny { font-size: 12px; color: var(--muted); }
+    .foot { color: var(--subtle); font-size: 12px; line-height: 1.5; margin-top: 24px; }
+    .note { background: var(--elevated); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .donut-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .donut-card {
+      background: var(--elevated);
+      border-radius: 16px;
+      padding: 12px 10px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+      cursor: pointer;
+      opacity: 0.78;
+      transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    }
+    .donut-card.on { opacity: 1; box-shadow: 0 0 0 1px var(--fg); }
+    .donut-card .val { font-size: 16px; margin-top: 2px; }
+    .donut svg { width: 112px; height: 112px; }
+    .sum {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      min-height: 56px;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 16px;
+    }
+    @media (max-width: 480px) {
+      body { padding: 16px 12px calc(140px + env(safe-area-inset-bottom, 0px)); }
+      .card { padding: 14px; }
+      .val { font-size: 18px; }
+      .mini .val { font-size: 16px; }
+      .row { font-size: 12px; padding: 7px 0; }
+      .row b { font-size: 12px; }
+      .grid4, .grid2, .grid3 { gap: 8px; }
+      #marketForm, #fuelForm, #form { padding-bottom: 8px; }
+      #marketForm .primary, #fuelForm .primary, #form .primary {
+        margin-bottom: 24px;
+        padding-right: 56px;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+      button:active { transform: none; }
+    }
   </style>
 </head>
 <body>
-<div id="lock" class="modal">
-  <div class="box">
-    <p class="label">ООО «Нейт»</p>
-    <h1 style="font-size:24px;margin:8px 0">Касса партнёров</h1>
-    <p class="tiny">Настя 70% / 140 000 · Наташа 30% / 60 000. Работает без Google и без облака — всё на этом телефоне.</p>
-    <label style="margin-top:16px" for="pass">Пароль</label>
-    <input id="pass" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" />
-    <p id="passErr" class="tiny bad" style="display:none;margin-top:8px">Неверный пароль</p>
-    <button class="primary" id="enter" type="button" style="width:100%;margin-top:12px">Войти</button>
+<div id="gate" class="modal" style="display:none"><div class="box">
+  <img class="brand-logo" src="logo.png" width="48" height="48" alt="">
+  <p class="label" style="margin-top:10px">Наташа Тейковцева</p>
+  <h1 style="font-size:22px;margin:6px 0 14px">Пароль Наташи</h1>
+  <input id="pass" type="password" inputmode="numeric" autocomplete="off" placeholder="Пароль" />
+  <p id="passErr" class="tiny bad" style="display:none;margin-top:8px">Неверный пароль</p>
+  <div class="grid2" style="margin-top:12px">
+    <button class="chip" id="cancelGate" type="button">Отмена</button>
+    <button class="primary" id="enter" type="button">Войти</button>
   </div>
-</div>
+</div></div>
 
 <header class="top">
-  <div>
-    <h1>Касса ООО «Нейт»</h1>
-    <div class="sub">70 / 30 · топливо отдельно · без облака</div>
+  <div class="brand">
+    <img class="brand-logo" src="logo.png" width="48" height="48" alt="ООО «Нейт»">
+    <div>
+      <h1>ООО «Нейт»</h1>
+      <div class="sub">Швейная фабрика · Настя 70% · Наташа 30%</div>
+    </div>
   </div>
-  <button class="chip" id="outBtn" type="button">Выйти</button>
+  <div class="ops">
+    <button class="chip" id="themeBtn" type="button">Светлая</button>
+    <button class="chip" id="roleBtn" type="button">Войти</button>
+  </div>
 </header>
+<div id="fbWarn" class="warn">Нет связи с облаком. Пишу в память телефона.</div>
+<p id="guestNote" class="note">Заправку, покупку на Ozon и прочие траты можно записать сразу. Приход, выдачу, топливо и депозит Я.Маркета вносит Наташа — кнопка «Войти».</p>
 
-<div class="grid4" style="margin-bottom:12px">
+<div class="grid4">
   <div class="card"><div class="label">Пришло</div><div class="val" id="sIncome">0 ₽</div></div>
-  <div class="card"><div class="label">Топливо</div><div class="val" id="sFuel">0 ₽</div></div>
-  <div class="card"><div class="label">Расходы</div><div class="val" id="sExp">0 ₽</div></div>
   <div class="card"><div class="label">К разделу</div><div class="val" id="sNet">0 ₽</div></div>
+  <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div></div>
+  <div class="card"><div class="label with-logo"><img class="gpn-sm" src="gazprom-neft-mark.png" alt="">Топливо</div><div class="val" id="sCard">0 ₽</div></div>
 </div>
 
 <div class="grid2">
   <section class="card">
-    <div class="who"><div><b>Настя Волкова</b><div class="tiny">ВсеИнструменты.ру · цель 140 000 ₽</div></div><span class="pct">70%</span></div>
-    <div class="bar"><i id="barNastya"></i></div>
+    <div class="who"><div><b>Настя Волкова</b><div class="tiny">Партнёр</div></div><span class="pct">70%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pBarNastya"></div></div>
     <div class="row"><span>Доля</span><b id="shareNastya">0 ₽</b></div>
+    <div class="row"><span>Расходы</span><b id="persNastya">0 ₽</b></div>
     <div class="row"><span>Выдано</span><b id="paidNastya">0 ₽</b></div>
-    <div class="row"><span>До 140к</span><b id="gapNastya">140 000 ₽</b></div>
     <div class="row"><span>Остаток</span><b id="balNastya">0 ₽</b></div>
   </section>
   <section class="card">
-    <div class="who"><div><b>Наташа Тейковцева</b><div class="tiny">ООО «Нейт» · цель 60 000 ₽</div></div><span class="pct">30%</span></div>
-    <div class="bar"><i id="barNatalia"></i></div>
+    <div class="who"><div><b>Наташа Тейковцева</b><div class="tiny">Директор</div></div><span class="pct">30%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pBarNatalia"></div></div>
     <div class="row"><span>Доля</span><b id="shareNatalia">0 ₽</b></div>
+    <div class="row"><span>Расходы</span><b id="persNatalia">0 ₽</b></div>
     <div class="row"><span>Выдано</span><b id="paidNatalia">0 ₽</b></div>
-    <div class="row"><span>До 60к</span><b id="gapNatalia">60 000 ₽</b></div>
     <div class="row"><span>Остаток</span><b id="balNatalia">0 ₽</b></div>
   </section>
 </div>
 
-<div class="hint" id="hint"></div>
-<div class="tabs">
-  <button class="on" data-tab="add" type="button">Новая операция</button>
-  <button data-tab="log" type="button">История</button>
-</div>
+<section class="card" id="secCharts">
+  <h2>Расходы</h2>
+  <p class="tiny" style="margin-top:4px;margin-bottom:12px">Ozon, Я.Маркет, топливо и прочее — кто сколько потратил</p>
+  <div class="donut-row">
+    <div class="donut-card on" data-who="nastya">
+      <div class="donut" id="donutNastya">
+        <svg viewBox="0 0 140 140" width="112" height="112" aria-hidden="true">
+          <circle class="donut-track" cx="70" cy="70" r="46" fill="none" stroke-width="16"/>
+          <g class="slices"></g>
+        </svg>
+      </div>
+      <div class="tiny">Настя</div>
+      <div class="val" id="totalNastyaM">0 ₽</div>
+    </div>
+    <div class="donut-card" data-who="natalia">
+      <div class="donut" id="donutNatalia">
+        <svg viewBox="0 0 140 140" width="112" height="112" aria-hidden="true">
+          <circle class="donut-track" cx="70" cy="70" r="46" fill="none" stroke-width="16"/>
+          <g class="slices"></g>
+        </svg>
+      </div>
+      <div class="tiny">Наташа</div>
+      <div class="val" id="totalNataliaM">0 ₽</div>
+    </div>
+  </div>
+  <div class="grid2" id="placeGrid"></div>
+  <p class="tiny filter-chip" id="platFilterHint" style="display:none"></p>
+</section>
 
-<section id="panelAdd" class="card">
-  <form id="form">
+<section class="card" id="secFuel">
+  <div class="fuel-head">
+    <img class="gpn-full" src="gazprom-neft.png" alt="Газпромнефть">
     <div>
-      <label>Что произошло</label>
+      <h2>Топливо</h2>
+      <div class="tiny" id="fuelMonthLabel">этот месяц</div>
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:12px">
+    <div class="mini"><div class="label">Пополнено</div><div class="val" id="sFuelIn">0 ₽</div><div class="tiny">в этом месяце</div></div>
+    <div class="mini"><div class="label">Списано</div><div class="val" id="sFuelOut">0 ₽</div><div class="tiny">в этом месяце</div></div>
+    <div class="mini"><div class="label">Остаток</div><div class="val" id="sFuelCard">0 ₽</div><div class="tiny">на карте сейчас</div></div>
+  </div>
+  <form id="fuelForm">
+    <div class="ops" id="fuelOps">
+      <button type="button" class="op" data-fuel="fuel" id="fuelTopupBtn">Положить на карту</button>
+      <button type="button" class="op on" data-fuel="fuel_spend">Заправка</button>
+    </div>
+    <div id="fuelWhoWrap">
       <div class="ops">
-        <button type="button" class="op on" data-type="income">Пришёл перевод</button>
-        <button type="button" class="op" data-type="fuel">На топливную карту</button>
-        <button type="button" class="op" data-type="expense">Прочий расход</button>
-        <button type="button" class="op" data-type="salary">Выдали зарплату</button>
+        <button type="button" class="op on" data-fuelfor="nastya">Заправилась Настя</button>
+        <button type="button" class="op" data-fuelfor="natalia">Заправилась Наташа</button>
       </div>
     </div>
     <div class="grid2">
-      <div><label for="amount">Сумма, ₽</label><input id="amount" type="number" min="1" step="1" required inputmode="numeric" /></div>
-      <div><label for="date">Дата</label><input id="date" type="date" required /></div>
+      <div><label>Сумма, ₽</label><input id="fuelAmount" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" /></div>
+      <div><label>Дата</label><input id="fuelDate" type="date" required /></div>
     </div>
-    <div id="partnerWrap" style="display:none">
-      <label for="partner">Кому</label>
-      <select id="partner">
-        <option value="nastya">Настя · 70% · 140 000</option>
-        <option value="natalia">Наташа · 30% · 60 000</option>
-      </select>
-    </div>
-    <div><label for="comment">Комментарий</label><textarea id="comment" placeholder="Откуда перевод или какая заправка"></textarea></div>
-    <button class="primary" type="submit">Записать</button>
+    <div><label>Комментарий</label><input id="fuelComment" placeholder="Газпромнефть" /></div>
+    <button class="primary" type="submit" id="fuelSubmit">Записать заправку</button>
+    <p class="tiny">Пополнение — из общей кассы на двоих. Заправки снимают только с карты, с долей ещё раз не списываются.</p>
   </form>
+  <ul id="fuelList"></ul>
 </section>
 
+<section class="card" id="secYm">
+  <div class="fuel-head">
+    <img class="ym-full" src="ym.png" alt="Яндекс Маркет">
+    <div>
+      <h2>Я.Маркет</h2>
+      <div class="tiny">депозит площадки</div>
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:12px">
+    <div class="mini"><div class="label">Пополнено</div><div class="val" id="sYmIn">0 ₽</div></div>
+    <div class="mini"><div class="label">Списано</div><div class="val" id="sYmOut">0 ₽</div></div>
+    <div class="mini"><div class="label">Остаток</div><div class="val" id="sYmCard">0 ₽</div></div>
+  </div>
+  <form id="ymForm">
+    <div class="ops" id="ymOps">
+      <button type="button" class="op" data-ym="ym" id="ymTopupBtn">Пополнить депозит</button>
+      <button type="button" class="op on" data-ym="ym_spend">Покупка с депозита</button>
+    </div>
+    <div id="ymWhoWrap">
+      <div class="ops">
+        <button type="button" class="op on" data-ymfor="nastya">Купила Настя</button>
+        <button type="button" class="op" data-ymfor="natalia">Купила Наташа</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div><label>Сумма, ₽</label><input id="ymAmount" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" /></div>
+      <div><label>Дата</label><input id="ymDate" type="date" required /></div>
+    </div>
+    <div><label>Что купили</label><input id="ymComment" placeholder="Ткань, фурнитура" /></div>
+    <button class="primary" type="submit" id="ymSubmit">Записать покупку</button>
+    <p class="tiny">Пополнение — из общей кассы на двоих. Покупки снимают только депозит, с долей больше не списываются.</p>
+  </form>
+  <ul id="ymList"></ul>
+</section>
+
+<section class="card" id="secOzon">
+  <div class="fuel-head">
+    <img class="block-logo" src="ozon.png" alt="Ozon">
+    <div>
+      <h2>Ozon</h2>
+      <div class="tiny">с доли той, кто купил</div>
+    </div>
+  </div>
+  <form id="marketForm">
+    <div class="ops">
+      <button type="button" class="op on" data-who="nastya">Купила Настя</button>
+      <button type="button" class="op" data-who="natalia">Купила Наташа</button>
+    </div>
+    <div class="grid2">
+      <div><label>Сумма, ₽</label><input id="marketAmount" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" /></div>
+      <div><label>Дата</label><input id="marketDate" type="date" required /></div>
+    </div>
+    <div><label>Что купили</label><input id="marketComment" placeholder="Ткань, нитки" /></div>
+    <button class="primary" type="submit">Записать покупку</button>
+  </form>
+  <ul id="marketList"></ul>
+</section>
+
+<section class="card" id="secOther">
+  <div class="fuel-head">
+    <img class="block-logo" src="other.png" alt="Прочее">
+    <div>
+      <h2>Прочее</h2>
+      <div class="tiny">с доли той, кто потратил</div>
+    </div>
+  </div>
+  <form id="spendForm">
+    <div class="ops">
+      <button type="button" class="op on" data-spend="nastya">Потратила Настя</button>
+      <button type="button" class="op" data-spend="natalia">Потратила Наташа</button>
+    </div>
+    <div class="grid2">
+      <div><label>Сумма, ₽</label><input id="spendAmount" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" /></div>
+      <div><label>Дата</label><input id="spendDate" type="date" required /></div>
+    </div>
+    <div><label>Где и что купили</label><input id="spendComment" placeholder="Магазин, такси, фурнитура" /></div>
+    <button class="primary" type="submit">Записать трату</button>
+  </form>
+  <ul id="spendList"></ul>
+</section>
+
+<div class="tabs">
+  <button class="on" data-tab="work" type="button">Касса</button>
+  <button data-tab="log" type="button">История</button>
+</div>
+
+<section id="panelWork" class="card">
+  <form id="form">
+    <div class="ops">
+      <button type="button" class="op on" data-type="income">Деньги пришли</button>
+      <button type="button" class="op" data-type="salary">Выдали на руки</button>
+    </div>
+    <div class="grid2">
+      <div><label>Сумма, ₽</label><input id="amount" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" /></div>
+      <div><label>Дата</label><input id="date" type="date" required /></div>
+    </div>
+    <div id="partnerWrap" style="display:none">
+      <div class="ops">
+        <button type="button" class="op on" data-partner="nastya" id="pNastya">Насте</button>
+        <button type="button" class="op" data-partner="natalia" id="pNatalia">Наташе</button>
+      </div>
+    </div>
+    <div><label>Комментарий</label><input id="comment" placeholder="Откуда деньги" /></div>
+    <button class="primary" type="submit" id="cashSubmit">Записать приход</button>
+  </form>
+</section>
+<p id="workGuest" class="note" style="display:none">Сюда пишет только Наташа: приход и выдача на руки. Траты — в блоках выше.</p>
+
 <section id="panelLog" class="card" style="display:none">
+  <input id="searchInput" type="search" placeholder="Поиск по истории (комментарий, сумма, дата)..." style="margin-bottom:10px;" />
   <div style="display:flex;gap:8px;margin-bottom:10px">
     <select id="monthFilter"><option value="all">Все месяцы</option></select>
     <button class="chip" id="exportBtn" type="button">CSV</button>
+    <button class="chip" id="restoreBtn" type="button" style="display:none">Вернуть</button>
+    <button class="chip bad" id="resetBtn" type="button" style="display:none">Сброс</button>
   </div>
+  <input id="restoreFile" type="file" accept="application/json,.json" style="display:none" />
   <ul id="list"></ul>
-  <p id="empty" class="tiny" style="padding:16px 0;display:none">Операций нет</p>
+  <p id="empty" class="tiny" style="padding:16px 0;display:none">Пока пусто</p>
 </section>
+
+<footer class="foot">Деньги делим: Насте 70%, Наташе 30%. Топливо и депозит Я.Маркета — из общей кассы. Ozon и прочее снимаются с доли той, кто купил.</footer>
 
 <script>
 (function () {
   var PIN = "1234";
   var KEY = "neit-kassa-v2";
   var AUTH = "neit-kassa-auth";
-  var TARGET = { nastya: 140000, natalia: 60000 };
+  var THEME = "neit-theme";
   var SHARE = { nastya: 0.7, natalia: 0.3 };
   var NAMES = { nastya: "Настя", natalia: "Наташа" };
-  var LABELS = { income: "перевод", fuel: "топливо", expense: "расход", salary: "зарплата", personal: "изъятие" };
-
+  var CATS = {
+    ozon: { name: "Ozon", short: "OZ", color: "#005BFF", img: "ozon.png", sec: "secOzon" },
+    ym: { name: "Яндекс Маркет", short: "YM", color: "#FFCC00", img: "ym-mark.png", sec: "secYm" },
+    fuel: { name: "Топливо", short: "ГП", color: "#1177C1", img: "gazprom-neft-mark.png", sec: "secFuel" },
+    other: { name: "Прочее", short: "Пр", color: "#9B1B4A", img: "other.png", sec: "secOther" }
+  };
+  var PLACES = { ozon: CATS.ozon, ym: CATS.ym, other: CATS.other };
+  var PURP = { ads: "Реклама", commission: "Комиссия", goods: "Закупка", delivery: "Доставка", pack: "Упаковка", other: "Прочее" };
+  var LABELS = { income: "пришло", fuel: "на карту", fuel_spend: "заправка", expense: "потратили", market: "покупка", salary: "на руки", personal: "изъятие", ym: "депозит Я.Маркет", ym_spend: "с Я.Маркета" };
+  firebase.initializeApp({ apiKey: "AIzaSyCSME5fUFOS6R80-2-wEgOyAUyJx1M0a1A", authDomain: "neit-41882.firebaseapp.com", projectId: "neit-41882", storageBucket: "neit-41882.firebasestorage.app", messagingSenderId: "478613249008", appId: "1:478613249008:web:42f214670ccc00a4935b35", databaseURL: "https://neit-41882-default-rtdb.europe-west1.firebasedatabase.app/" });
+  var ref = firebase.database().ref("transactions");
   var tx = [];
-  var type = "income";
+  var director = false;
+  var type = "income", fuelKind = "fuel_spend", ymKind = "ym_spend", who = "nastya", whoFuel = "nastya", whoYm = "nastya", whoSpend = "nastya", place = "ozon", partner = "nastya";
+  var platFilter = null;
 
-  function rub(n) {
-    return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(Math.round(n || 0));
+  function emptyPlace() { return { ozon: 0, ym: 0, fuel: 0, other: 0 }; }
+  function normPlace(id) {
+    if (id === "ozon" || id === "ym" || id === "other") return id;
+    if (!id) return "";
+    return "other";
   }
-  function money(n) { return Math.round(Number(n) || 0); }
-  function esc(s) {
-    var d = document.createElement("div");
-    d.textContent = s == null ? "" : String(s);
-    return d.innerHTML;
+  function polar(cx, cy, r, a) {
+    var rad = (a - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
   }
-
-  function load() {
-    try {
-      var raw = JSON.parse(localStorage.getItem(KEY) || "[]");
-      tx = Array.isArray(raw) ? raw : [];
-    } catch (e) { tx = []; }
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(tx)); } catch (e) {}
-  }
-
-  function metrics() {
-    var income = 0, fuel = 0, expense = 0;
-    var paid = { nastya: 0, natalia: 0 };
-    for (var i = 0; i < tx.length; i++) {
-      var t = tx[i];
-      var a = money(t.amount);
-      if (t.type === "income") income += a;
-      else if (t.type === "fuel") fuel += a;
-      else if (t.type === "expense") expense += a;
-      else if ((t.type === "salary" || t.type === "personal") && paid[t.partner] != null) paid[t.partner] += a;
+  function donutPath(cx, cy, r0, r1, a0, a1) {
+    var sweep = a1 - a0;
+    if (sweep >= 359.9) {
+      return "M " + cx + " " + (cy - r1) + " A " + r1 + " " + r1 + " 0 1 1 " + cx + " " + (cy + r1) + " A " + r1 + " " + r1 + " 0 1 1 " + cx + " " + (cy - r1) + " M " + cx + " " + (cy - r0) + " A " + r0 + " " + r0 + " 0 1 0 " + cx + " " + (cy + r0) + " A " + r0 + " " + r0 + " 0 1 0 " + cx + " " + (cy - r0);
     }
-    var net = income - fuel - expense;
-    var shares = { nastya: net * SHARE.nastya, natalia: net * SHARE.natalia };
-    var bal = { nastya: shares.nastya - paid.nastya, natalia: shares.natalia - paid.natalia };
-    return { income: income, fuel: fuel, expense: expense, net: net, paid: paid, shares: shares, bal: bal, cash: net - paid.nastya - paid.natalia };
+    var large = sweep > 180 ? 1 : 0;
+    var p0 = polar(cx, cy, r1, a0), p1 = polar(cx, cy, r1, a1);
+    var q0 = polar(cx, cy, r0, a0), q1 = polar(cx, cy, r0, a1);
+    return "M " + p0.x.toFixed(2) + " " + p0.y.toFixed(2) + " A " + r1 + " " + r1 + " 0 " + large + " 1 " + p1.x.toFixed(2) + " " + p1.y.toFixed(2) + " L " + q1.x.toFixed(2) + " " + q1.y.toFixed(2) + " A " + r0 + " " + r0 + " 0 " + large + " 0 " + q0.x.toFixed(2) + " " + q0.y.toFixed(2) + " Z";
+  }
+  function drawDonut(el, byPlace, total) {
+    var g = el.querySelector(".slices");
+    if (!g) {
+      el.innerHTML = '<svg viewBox="0 0 140 140" width="112" height="112" aria-hidden="true"><circle class="donut-track" cx="70" cy="70" r="46" fill="none" stroke-width="16"/><g class="slices"></g></svg>';
+      g = el.querySelector(".slices");
+    }
+    var html = "";
+    if (total > 0) {
+      var angle = 0;
+      Object.keys(CATS).forEach(function (k) {
+        var v = byPlace[k] || 0;
+        if (v <= 0) return;
+        var sweep = (v / total) * 360;
+        var a0 = angle;
+        var a1 = angle + sweep;
+        angle = a1;
+        html += '<path data-place="' + k + '" d="' + donutPath(70, 70, 34, 58, a0, a1) + '" fill="' + CATS[k].color + '" fill-rule="evenodd" stroke="rgba(9,9,11,.35)" stroke-width="1.2"/>';
+      });
+    }
+    g.innerHTML = html;
+  }
+  function setPlatActive(id) {
+    var sel = id || platFilter;
+    document.querySelectorAll(".donut [data-place]").forEach(function (el) {
+      var on = !sel || el.getAttribute("data-place") === sel;
+      el.style.opacity = on ? "1" : "0.28";
+      el.classList.toggle("hot", !!sel && on);
+    });
+    placeGrid.querySelectorAll(".place").forEach(function (el) {
+      var k = el.getAttribute("data-place");
+      el.classList.toggle("on", k === platFilter);
+      el.classList.toggle("hot", !!sel && k === sel);
+    });
+    if (platFilter && CATS[platFilter]) {
+      var label = (who === "nastya" ? "Настя" : "Наташа") + " · " + CATS[platFilter].name;
+      if (director) {
+        platFilterHint.style.display = "block";
+        platFilterHint.innerHTML = esc(label) + ' · <button type="button" class="del" id="platFilterClear">сбросить</button>';
+        var clr = document.getElementById("platFilterClear");
+        if (clr) clr.onclick = function () { platFilter = null; render(); };
+      } else {
+        platFilterHint.style.display = "none";
+        platFilterHint.textContent = "";
+      }
+    } else {
+      platFilterHint.style.display = "none";
+      platFilterHint.textContent = "";
+    }
+  }
+  function bindPlat() {
+    function pick(id, scroll) {
+      platFilter = platFilter === id ? null : id;
+      if (scroll && platFilter && CATS[platFilter] && CATS[platFilter].sec) {
+        var box = document.getElementById(CATS[platFilter].sec);
+        if (box) box.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      renderLists();
+      setPlatActive(platFilter);
+    }
+    document.querySelectorAll(".donut [data-place]").forEach(function (el) {
+      var id = el.getAttribute("data-place");
+      el.onmouseenter = function () { setPlatActive(id); };
+      el.onmouseleave = function () { setPlatActive(platFilter); };
+      el.onclick = function (e) { e.stopPropagation(); pick(id, true); };
+    });
+    placeGrid.querySelectorAll(".place").forEach(function (el) {
+      var id = el.getAttribute("data-place");
+      el.onmouseenter = function () { setPlatActive(id); };
+      el.onmouseleave = function () { setPlatActive(platFilter); };
+      el.onclick = function () { pick(id, false); };
+    });
+    setPlatActive(platFilter);
+    document.querySelectorAll(".donut-card").forEach(function (el) {
+      el.onclick = function () { setWho(el.getAttribute("data-who")); };
+    });
   }
 
-  function setP(m, key, shareEl, paidEl, gapEl, balEl, barEl) {
-    shareEl.textContent = rub(m.shares[key]);
-    paidEl.textContent = rub(m.paid[key]);
-    gapEl.textContent = rub(Math.max(0, TARGET[key] - m.paid[key]));
-    balEl.textContent = rub(m.bal[key]);
-    balEl.className = m.bal[key] >= 0 ? "ok" : "bad";
-    barEl.style.width = Math.min(100, (m.paid[key] / TARGET[key]) * 100) + "%";
+  function setWho(id) {
+    if (id !== "nastya" && id !== "natalia") return;
+    who = id;
+    document.querySelectorAll("#marketForm [data-who]").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-who") === who);
+    });
+    applyWhoView();
+  }
+  function applyWhoView() {
+    var m = metrics();
+    document.querySelectorAll(".donut-card").forEach(function (el) {
+      el.classList.toggle("on", el.getAttribute("data-who") === who);
+    });
+    var mine = m.byPlaceWho[who] || emptyPlace();
+    var total = m.byWho[who] || 0;
+    placeGrid.innerHTML = Object.keys(CATS).map(function (k) {
+      var pct = total > 0 ? Math.round((mine[k] / total) * 100) : 0;
+      return '<button type="button" class="place" data-place="' + k + '"><div class="place-top">' + logo(k) + '<div class="place-meta"><div class="tiny">' + esc(CATS[k].name) + " · " + pct + '%</div><div class="val" style="font-size:14px">' + rub(mine[k]) + "</div></div></div><div class=\"place-bar\"><span style=\"width:" + pct + "%;background:" + CATS[k].color + '"></span></div></button>';
+    }).join("");
+    bindPlat();
+    renderLists();
+  }
+
+  function rub(n) { return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(Math.round(n || 0)); }
+  function money(n) {
+    var s = String(n == null ? "" : n).replace(/\s/g, "").replace(",", ".");
+    var v = parseFloat(s);
+    return Math.round(v > 0 ? v : 0);
+  }
+  function need(el) {
+    el.classList.add("need");
+    try { el.focus(); } catch (e) {}
+    setTimeout(function () { el.classList.remove("need"); }, 1400);
+  }
+  function ymOf(d) { return String(d || "").slice(0, 7); }
+  function thisYm() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  }
+  function monthName(ym) {
+    var names = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+    var p = String(ym).split("-");
+    var i = Number(p[1]) - 1;
+    if (!p[0] || i < 0 || i > 11) return ym;
+    return names[i] + " " + p[0];
+  }
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function ownerOf(t) {
+    if (t.partner === "nastya" || t.partner === "natalia") return t.partner;
+    var c = String(t.comment || "").toLowerCase();
+    if (/наст[яие]/.test(c)) return "nastya";
+    if (/наташ/.test(c)) return "natalia";
+    return null;
+  }
+  function title(t) {
+    var bits = [LABELS[t.type] || t.type];
+    var ow = ownerOf(t);
+    if (ow) bits.push(NAMES[ow]);
+    if (t.marketplace && PLACES[normPlace(t.marketplace)]) bits.push(PLACES[normPlace(t.marketplace)].name);
+    return bits.join(" · ");
+  }
+  function logo(id) {
+    var p = CATS[id] || PLACES[id];
+    if (!p) return "";
+    if (p.img) return '<img class="logo-img" src="' + p.img + '" alt="">';
+    return '<span class="logo" style="background:' + p.color + '">' + esc((p.short || "?").slice(0, 2)) + "</span>";
+  }
+  function metrics() {
+    var income = 0, fuel = 0, fuelSpend = 0, fuelMonth = 0, fuelSpendMonth = 0, commonExpense = 0, market = 0;
+    var ymIn = 0, ymOut = 0;
+    var paid = { nastya: 0, natalia: 0 };
+    var personal = { nastya: 0, natalia: 0 };
+    var byWho = { nastya: 0, natalia: 0 };
+    var byPlace = emptyPlace();
+    var byPlaceWho = { nastya: emptyPlace(), natalia: emptyPlace() };
+    var byFuelMo = {};
+    var nowYm = thisYm();
+    for (var i = 0; i < tx.length; i++) {
+      var t = tx[i], a = money(t.amount);
+      var mp = normPlace(t.marketplace);
+      if (t.type === "income") income += a;
+      else if (t.type === "fuel") {
+        fuel += a;
+        var fmo = ymOf(t.date);
+        if (!byFuelMo[fmo]) byFuelMo[fmo] = { inn: 0, out: 0 };
+        byFuelMo[fmo].inn += a;
+        if (fmo === nowYm) fuelMonth += a;
+      } else if (t.type === "fuel_spend") {
+        fuelSpend += a;
+        var smo = ymOf(t.date);
+        if (!byFuelMo[smo]) byFuelMo[smo] = { inn: 0, out: 0 };
+        byFuelMo[smo].out += a;
+        if (smo === nowYm) fuelSpendMonth += a;
+        var fw = ownerOf(t);
+        if (fw) {
+          byWho[fw] += a;
+          byPlaceWho[fw].fuel += a;
+        }
+        byPlace.fuel += a;
+      } else if (t.type === "ym") {
+        ymIn += a;
+      } else if (t.type === "ym_spend" || (t.type === "market" && mp === "ym")) {
+        ymOut += a;
+        market += a;
+        var yw = ownerOf(t);
+        if (yw) {
+          byWho[yw] += a;
+          byPlaceWho[yw].ym += a;
+        }
+        byPlace.ym += a;
+      } else if (t.type === "expense") {
+        var ew = ownerOf(t);
+        if (ew) {
+          personal[ew] += a;
+          byWho[ew] += a;
+          byPlaceWho[ew].other += a;
+        } else commonExpense += a;
+        byPlace.other += a;
+      } else if (t.type === "market") {
+        market += a;
+        var mw = ownerOf(t);
+        if (mw) {
+          personal[mw] += a;
+          byWho[mw] += a;
+          if (byPlaceWho[mw][mp] != null) byPlaceWho[mw][mp] += a;
+        } else commonExpense += a;
+        if (byPlace[mp] != null) byPlace[mp] += a;
+      } else if ((t.type === "salary" || t.type === "personal") && paid[t.partner] != null) paid[t.partner] += a;
+    }
+    var net = income - fuel - ymIn - commonExpense;
+    var shares = { nastya: net * SHARE.nastya, natalia: net * SHARE.natalia };
+    var keys = Object.keys(byFuelMo).sort();
+    var rest = 0;
+    var fuelMonths = [];
+    for (var k = 0; k < keys.length; k++) {
+      var key = keys[k];
+      rest += byFuelMo[key].inn - byFuelMo[key].out;
+      fuelMonths.push({ key: key, label: monthName(key), inn: byFuelMo[key].inn, out: byFuelMo[key].out, rest: rest });
+    }
+    fuelMonths.reverse();
+    return {
+      income: income, fuel: fuel, fuelSpend: fuelSpend, fuelMonth: fuelMonth, fuelSpendMonth: fuelSpendMonth,
+      card: fuel - fuelSpend, ymIn: ymIn, ymOut: ymOut, ymCard: ymIn - ymOut,
+      market: market, net: net, fuelMonths: fuelMonths, nowYm: nowYm,
+      personal: personal, paid: paid, shares: shares, byWho: byWho, byPlace: byPlace, byPlaceWho: byPlaceWho,
+      bal: { nastya: shares.nastya - paid.nastya - personal.nastya, natalia: shares.natalia - paid.natalia - personal.natalia },
+      cash: net - paid.nastya - paid.natalia - personal.nastya - personal.natalia
+    };
+  }
+
+  function setRoleUI() {
+    guestNote.style.display = director ? "none" : "block";
+    roleBtn.textContent = director ? "Выйти" : "Войти";
+    roleBtn.className = "chip";
+    resetBtn.style.display = director ? "inline-flex" : "none";
+    restoreBtn.style.display = director ? "inline-flex" : "none";
+    fuelTopupBtn.style.display = director ? "" : "none";
+    ymTopupBtn.style.display = director ? "" : "none";
+    if (!director) {
+      fuelKind = "fuel_spend";
+      ymKind = "ym_spend";
+      document.querySelectorAll("#fuelOps [data-fuel]").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-fuel") === "fuel_spend"); });
+      document.querySelectorAll("#ymOps [data-ym]").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-ym") === "ym_spend"); });
+    }
+    fuelWhoWrap.style.display = fuelKind === "fuel_spend" ? "block" : "none";
+    fuelSubmit.textContent = fuelKind === "fuel" ? "Положить на карту" : "Записать заправку";
+    ymWhoWrap.style.display = ymKind === "ym_spend" ? "block" : "none";
+    ymSubmit.textContent = ymKind === "ym" ? "Пополнить депозит" : "Записать покупку";
+    form.style.display = director ? "grid" : "none";
+    workGuest.style.display = director ? "none" : "block";
+    panelWork.style.display = document.querySelector('.tabs button.on').getAttribute("data-tab") === "work" && director ? "block" : "none";
+    if (document.querySelector('.tabs button.on').getAttribute("data-tab") === "work" && !director) workGuest.style.display = "block";
   }
 
   function render() {
     var m = metrics();
-    document.getElementById("sIncome").textContent = rub(m.income);
-    document.getElementById("sFuel").textContent = rub(m.fuel);
-    document.getElementById("sExp").textContent = rub(m.expense);
-    document.getElementById("sNet").textContent = rub(m.net);
-    setP(m, "nastya", shareNastya, paidNastya, gapNastya, balNastya, barNastya);
-    setP(m, "natalia", shareNatalia, paidNatalia, gapNatalia, balNatalia, barNatalia);
-    var text;
-    if (!tx.length) {
-      text = "Запишите перевод, когда деньги пришли. Топливо на карту — не зарплата, его вычитаем до дележа 70/30.";
-    } else {
-      text = "После топлива и расходов к разделу " + rub(m.net) + ": Насте " + rub(m.shares.nastya) + ", Наташе " + rub(m.shares.natalia) + ". В кассе " + rub(m.cash) + ".";
-      text += " До целей: Насте " + rub(Math.max(0, TARGET.nastya - m.paid.nastya)) + ", Наташе " + rub(Math.max(0, TARGET.natalia - m.paid.natalia)) + ".";
-    }
-    document.getElementById("hint").textContent = text;
-    renderLog();
+    sIncome.textContent = rub(m.income);
+    sNet.textContent = rub(m.net);
+    sCash.textContent = rub(m.cash);
+    sCard.textContent = rub(m.card);
+    sFuelIn.textContent = rub(m.fuelMonth);
+    sFuelOut.textContent = rub(m.fuelSpendMonth);
+    sFuelCard.textContent = rub(m.card);
+    sFuelCard.className = "val " + (m.card < 0 ? "bad" : "ok");
+    sYmIn.textContent = rub(m.ymIn);
+    sYmOut.textContent = rub(m.ymOut);
+    sYmCard.textContent = rub(m.ymCard);
+    sYmCard.className = "val " + (m.ymCard < 0 ? "bad" : "ok");
+    fuelMonthLabel.textContent = monthName(m.nowYm);
+    shareNastya.textContent = rub(m.shares.nastya);
+    shareNatalia.textContent = rub(m.shares.natalia);
+    persNastya.textContent = rub(m.personal.nastya);
+    persNatalia.textContent = rub(m.personal.natalia);
+    paidNastya.textContent = rub(m.paid.nastya);
+    paidNatalia.textContent = rub(m.paid.natalia);
+    balNastya.textContent = rub(m.bal.nastya);
+    balNatalia.textContent = rub(m.bal.natalia);
+    balNastya.className = m.bal.nastya >= 0 ? "ok" : "bad";
+    balNatalia.className = m.bal.natalia >= 0 ? "ok" : "bad";
+    pBarNastya.style.width = (m.shares.nastya > 0 ? Math.min(100, Math.max(0, ((m.paid.nastya + m.personal.nastya) / m.shares.nastya) * 100)) : 0) + "%";
+    pBarNatalia.style.width = (m.shares.natalia > 0 ? Math.min(100, Math.max(0, ((m.paid.natalia + m.personal.natalia) / m.shares.natalia) * 100)) : 0) + "%";
+    totalNastyaM.textContent = rub(m.byWho.nastya);
+    totalNataliaM.textContent = rub(m.byWho.natalia);
+    drawDonut(donutNastya, m.byPlaceWho.nastya, m.byWho.nastya);
+    drawDonut(donutNatalia, m.byPlaceWho.natalia, m.byWho.natalia);
+    applyWhoView();
+    setRoleUI();
   }
 
-  function renderLog() {
-    var monthFilter = document.getElementById("monthFilter");
-    var list = document.getElementById("list");
-    var empty = document.getElementById("empty");
+  function rowHtml(t) {
+    var sign = (t.type === "income" || t.type === "fuel" || t.type === "ym") ? "+" : "−";
+    var del = director ? '<button class="del" type="button" data-del="' + esc(t.id) + '">Удалить</button>' : "";
+    return '<li><div><div>' + sign + rub(t.amount) + '</div><div class="tiny">' + esc(t.date) + " · " + esc(title(t)) + "</div>" + (t.comment ? '<div class="tiny">' + esc(t.comment) + "</div>" : "") + "</div>" + del + "</li>";
+  }
+  function bindDel(root) {
+    var dels = root.querySelectorAll("[data-del]");
+    for (var j = 0; j < dels.length; j++) dels[j].onclick = function () {
+      if (!director) return;
+      var id = this.getAttribute("data-del");
+      var rec = null;
+      for (var i = 0; i < tx.length; i++) if (tx[i].id === id) { rec = tx[i]; break; }
+      if (!rec) return;
+      var msg = "Удалить " + rub(rec.amount);
+      if (rec.comment) msg += " — «" + rec.comment + "»";
+      else msg += " без комментария";
+      msg += "?";
+      if (!confirm(msg)) return;
+      tx = tx.filter(function (t) { return t.id !== id; });
+      persist();
+    };
+  }
+  function fill(list, rows) {
+    list.innerHTML = rows.map(rowHtml).join("");
+    bindDel(list);
+  }
+  function matchesSearch(t, q) {
+    if (!q) return true;
+    var pk = t.marketplace ? normPlace(t.marketplace) : "";
+    var placeName = (pk && PLACES[pk]) ? PLACES[pk].name : "";
+    var hay = [
+      String(t.comment || ""),
+      String(t.amount || ""),
+      rub(t.amount),
+      String(t.date || ""),
+      placeName,
+      LABELS[t.type] || t.type || "",
+      (t.partner && NAMES[t.partner]) ? NAMES[t.partner] : "",
+      title(t)
+    ].join(" ").toLowerCase();
+    return hay.indexOf(q) !== -1;
+  }
+  function renderLists() {
     var month = monthFilter.value;
-    var rows = tx.filter(function (t) { return month === "all" || (t.date || "").indexOf(month) === 0; });
-    rows.sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); });
+    var q = String(searchInput.value || "").trim().toLowerCase();
+    var all = tx.filter(function (t) {
+      return (month === "all" || (t.date || "").indexOf(month) === 0) && matchesSearch(t, q);
+    });
+    all.sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); });
     var months = [];
     for (var i = 0; i < tx.length; i++) {
       var mo = (tx[i].date || "").slice(0, 7);
@@ -242,99 +1035,240 @@
     monthFilter.innerHTML = '<option value="all">Все месяцы</option>' + months.map(function (mo) {
       return '<option value="' + esc(mo) + '"' + (mo === month ? " selected" : "") + ">" + esc(mo) + "</option>";
     }).join("");
-    list.innerHTML = rows.map(function (t) {
-      var who = t.partner ? (NAMES[t.partner] || "") : "";
-      var sign = t.type === "income" ? "+" : "−";
-      return '<li><div><div>' + sign + rub(t.amount) + '</div><div class="tiny">' + esc(t.date) + " · " + esc(LABELS[t.type] || t.type) + (who ? " · " + esc(who) : "") + "</div>" + (t.comment ? '<div class="tiny">' + esc(t.comment) + "</div>" : "") + '</div><button class="del" type="button" data-id="' + esc(t.id) + '">Удалить</button></li>';
-    }).join("");
-    empty.style.display = rows.length ? "none" : "block";
-    var dels = list.querySelectorAll(".del");
-    for (var j = 0; j < dels.length; j++) {
-      dels[j].onclick = function () {
-        if (!confirm("Удалить запись?")) return;
-        var id = this.getAttribute("data-id");
-        tx = tx.filter(function (t) { return t.id !== id; });
-        save();
-        render();
-      };
+    fill(list, all);
+    if (all.length) {
+      empty.style.display = "none";
+    } else {
+      empty.style.display = "block";
+      empty.textContent = q ? "Ничего не найдено по вашему запросу" : "Пока пусто";
+    }
+    fill(marketList, tx.filter(function (t) {
+      return t.type === "market" && normPlace(t.marketplace) !== "ym" && ownerOf(t) === who && (!platFilter || normPlace(t.marketplace) === platFilter);
+    }).sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); }));
+    fill(spendList, tx.filter(function (t) { return t.type === "expense"; }).sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); }).slice(0, 8));
+    fill(ymList, tx.filter(function (t) { return t.type === "ym" || t.type === "ym_spend" || (t.type === "market" && normPlace(t.marketplace) === "ym"); }).sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); }).slice(0, 8));
+    var now = thisYm();
+    var fuelNow = tx.filter(function (t) {
+      return (t.type === "fuel" || t.type === "fuel_spend") && ymOf(t.date) === now;
+    }).sort(function (a, b) { return String(b.date || "").localeCompare(String(a.date || "")); });
+    fill(fuelList, fuelNow);
+    var past = metrics().fuelMonths.filter(function (x) { return x.key !== now; });
+    if (past.length) {
+      fuelList.insertAdjacentHTML("beforeend", '<li><div class="tiny">Прошлые месяцы — лежат в истории</div></li>' + past.map(function (x) {
+        return '<li><div><div>' + esc(x.label) + '</div><div class="tiny">положили ' + rub(x.inn) + ' · заправки ' + rub(x.out) + ' · остаток ' + rub(x.rest) + '</div></div></li>';
+      }).join(""));
     }
   }
 
-  function unlock() { document.getElementById("lock").style.display = "none"; }
-  function relock() {
-    try { sessionStorage.removeItem(AUTH); } catch (e) {}
-    document.getElementById("lock").style.display = "flex";
-    document.getElementById("pass").value = "";
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(tx)); } catch (e) {}
+    try { ref.set(Array.from(tx)); } catch (e) { fbWarn.style.display = "block"; }
+    render();
   }
 
-  document.getElementById("enter").onclick = function () {
-    var pass = document.getElementById("pass");
-    var passErr = document.getElementById("passErr");
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t === "dark" ? "Светлая" : "Тёмная";
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "dark" ? "#09090b" : "#f4f4f6");
+  }
+
+  function group(sel, attr, setter) {
+    var btns = document.querySelectorAll(sel);
+    for (var i = 0; i < btns.length; i++) btns[i].onclick = function () {
+      setter(this.getAttribute(attr));
+      for (var x = 0; x < btns.length; x++) btns[x].classList.toggle("on", btns[x] === this);
+    };
+  }
+
+  themeBtn.onclick = function () {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    try { localStorage.setItem(THEME, next); } catch (e) {}
+    applyTheme(next);
+  };
+  roleBtn.onclick = function () {
+    if (director) {
+      director = false;
+      try { sessionStorage.removeItem(AUTH); } catch (e) {}
+      render();
+    } else gate.style.display = "flex";
+  };
+  cancelGate.onclick = function () { gate.style.display = "none"; pass.value = ""; };
+  enter.onclick = function () {
     if (String(pass.value).trim() === PIN) {
+      director = true;
       try { sessionStorage.setItem(AUTH, "1"); } catch (e) {}
       passErr.style.display = "none";
-      unlock();
-    } else {
-      passErr.style.display = "block";
-    }
+      gate.style.display = "none";
+      pass.value = "";
+      render();
+    } else passErr.style.display = "block";
   };
-  document.getElementById("pass").onkeydown = function (e) {
-    if (e.key === "Enter") document.getElementById("enter").click();
-  };
-  document.getElementById("outBtn").onclick = relock;
+  pass.onkeydown = function (e) { if (e.key === "Enter") enter.click(); };
 
-  var ops = document.querySelectorAll(".op");
-  for (var o = 0; o < ops.length; o++) {
-    ops[o].onclick = function () {
-      type = this.getAttribute("data-type");
-      for (var x = 0; x < ops.length; x++) ops[x].classList.toggle("on", ops[x] === this);
-      document.getElementById("partnerWrap").style.display = type === "salary" ? "block" : "none";
+  group("#panelWork [data-type]", "data-type", function (v) {
+    type = v;
+    partnerWrap.style.display = v === "salary" ? "block" : "none";
+    cashSubmit.textContent = v === "income" ? "Записать приход" : "Выдать";
+    comment.placeholder = v === "income" ? "Откуда деньги" : "Комментарий";
+    pNastya.textContent = "Насте";
+    pNatalia.textContent = "Наташе";
+  });
+  group("#fuelForm [data-fuel]", "data-fuel", function (v) {
+    fuelKind = v;
+    fuelWhoWrap.style.display = v === "fuel_spend" ? "block" : "none";
+    fuelSubmit.textContent = v === "fuel" ? "Положить на карту" : "Записать заправку";
+  });
+  group("#ymForm [data-ym]", "data-ym", function (v) {
+    ymKind = v;
+    ymWhoWrap.style.display = v === "ym_spend" ? "block" : "none";
+    ymSubmit.textContent = v === "ym" ? "Пополнить депозит" : "Записать покупку";
+  });
+  group("#fuelWhoWrap [data-fuelfor]", "data-fuelfor", function (v) { whoFuel = v; });
+  group("#ymWhoWrap [data-ymfor]", "data-ymfor", function (v) { whoYm = v; });
+  group("#spendForm [data-spend]", "data-spend", function (v) { whoSpend = v; });
+  group("#marketForm [data-who]", "data-who", function (v) { setWho(v); });
+  group("#partnerWrap [data-partner]", "data-partner", function (v) { partner = v; });
+  document.querySelectorAll(".tabs button").forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.toggle("on", x === b); });
+      var tab = b.getAttribute("data-tab");
+      panelLog.style.display = tab === "log" ? "block" : "none";
+      panelWork.style.display = tab === "work" && director ? "block" : "none";
+      workGuest.style.display = tab === "work" && !director ? "block" : "none";
     };
-  }
-  var tabs = document.querySelectorAll(".tabs button");
-  for (var tb = 0; tb < tabs.length; tb++) {
-    tabs[tb].onclick = function () {
-      for (var x = 0; x < tabs.length; x++) tabs[x].classList.toggle("on", tabs[x] === this);
-      var tab = this.getAttribute("data-tab");
-      document.getElementById("panelAdd").style.display = tab === "add" ? "block" : "none";
-      document.getElementById("panelLog").style.display = tab === "log" ? "block" : "none";
-    };
-  }
+  });
 
-  document.getElementById("form").onsubmit = function (e) {
+  form.onsubmit = function (e) {
     e.preventDefault();
+    if (!director) return;
     var amount = money(document.getElementById("amount").value);
-    if (amount <= 0) return;
-    tx.push({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      date: document.getElementById("date").value,
-      amount: amount,
-      type: type,
-      comment: document.getElementById("comment").value.trim(),
-      partner: type === "salary" ? document.getElementById("partner").value : null
-    });
-    document.getElementById("amount").value = "";
-    document.getElementById("comment").value = "";
-    save();
-    render();
+    if (amount <= 0) { need(document.getElementById("amount")); return; }
+    tx.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: date.value, amount: amount, type: type, comment: comment.value.trim(), partner: type === "salary" ? partner : null, marketplace: null, purpose: null });
+    document.getElementById("amount").value = ""; comment.value = ""; persist();
   };
-
-  document.getElementById("exportBtn").onclick = function () {
-    var head = "Дата;Сумма;Тип;Партнёр;Комментарий";
-    var rows = tx.map(function (t) {
-      return [t.date, t.amount, LABELS[t.type] || t.type, NAMES[t.partner] || "", '"' + String(t.comment || "").replace(/"/g, '""') + '"'].join(";");
-    });
+  fuelForm.onsubmit = function (e) {
+    e.preventDefault();
+    if (fuelKind === "fuel" && !director) return;
+    var amount = money(fuelAmount.value);
+    if (amount <= 0) { need(fuelAmount); return; }
+    tx.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: fuelDate.value, amount: amount, type: fuelKind, comment: fuelComment.value.trim(), partner: fuelKind === "fuel" ? "natalia" : whoFuel, marketplace: null, purpose: null });
+    fuelAmount.value = ""; fuelComment.value = ""; persist();
+  };
+  ymForm.onsubmit = function (e) {
+    e.preventDefault();
+    if (ymKind === "ym" && !director) return;
+    var amount = money(ymAmount.value);
+    if (amount <= 0) { need(ymAmount); return; }
+    tx.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: ymDate.value, amount: amount, type: ymKind, comment: ymComment.value.trim(), partner: ymKind === "ym" ? "natalia" : whoYm, marketplace: "ym", purpose: null });
+    ymAmount.value = ""; ymComment.value = ""; persist();
+  };
+  spendForm.onsubmit = function (e) {
+    e.preventDefault();
+    var amount = money(spendAmount.value);
+    if (amount <= 0) { need(spendAmount); return; }
+    tx.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: spendDate.value, amount: amount, type: "expense", comment: spendComment.value.trim(), partner: whoSpend, marketplace: "other", purpose: null });
+    spendAmount.value = ""; spendComment.value = ""; persist();
+  };
+  function saveMarket() {
+    var amount = money(marketAmount.value);
+    if (amount <= 0) { need(marketAmount); return false; }
+    var whoBtn = document.querySelector("#marketForm [data-who].on");
+    var whoNow = (whoBtn && whoBtn.getAttribute("data-who")) || who || "nastya";
+    var placeNow = "ozon";
+    who = whoNow;
+    place = placeNow;
+    tx.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: marketDate.value, amount: amount, type: "market", partner: whoNow, marketplace: "ozon", purpose: null, comment: marketComment.value.trim() });
+    marketAmount.value = ""; marketComment.value = ""; persist();
+    return true;
+  }
+  marketForm.onsubmit = function (e) {
+    e.preventDefault();
+    saveMarket();
+  };
+  document.querySelector("#marketForm .primary").onclick = function (e) {
+    e.preventDefault();
+    saveMarket();
+  };
+  exportBtn.onclick = function () {
+    var head = "Дата;Сумма;Тип;Кто;Площадка;На что;Комментарий";
+    var rows = tx.map(function (t) { return [t.date, t.amount, LABELS[t.type] || t.type, NAMES[t.partner] || "", (PLACES[normPlace(t.marketplace)] || {}).name || "", PURP[t.purpose] || "", '"' + String(t.comment || "").replace(/"/g, '""') + '"'].join(";"); });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["\uFEFF" + [head].concat(rows).join("\n")], { type: "text/csv;charset=utf-8;" }));
     a.download = "neit-kassa.csv";
     a.click();
   };
-  document.getElementById("monthFilter").onchange = renderLog;
+  function backupFileName() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return "neit-kassa-backup-" + d.getFullYear() + "-" + m + "-" + day + ".json";
+  }
+  resetBtn.onclick = function () {
+    if (!director) return;
+    if (!confirm("Сбросить кассу? Сначала скачается архив, потом история очистится.")) return;
+    var blob = new Blob([JSON.stringify(tx, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = backupFileName();
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+    tx = [];
+    try { localStorage.setItem(KEY, "[]"); } catch (e) {}
+    try { ref.remove(); } catch (e) { fbWarn.style.display = "block"; }
+    render();
+  };
+  restoreBtn.onclick = function () {
+    if (!director) return;
+    restoreFile.click();
+  };
+  restoreFile.onchange = function () {
+    if (!director) return;
+    var f = restoreFile.files && restoreFile.files[0];
+    restoreFile.value = "";
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(String(reader.result || "[]"));
+        var list = Array.isArray(data) ? data : null;
+        if (!list) { alert("Это не архив кассы. Нужен файл, который скачался при сбросе."); return; }
+        list = list.filter(function (t) { return t && t.type && t.amount != null; });
+        if (!list.length) { alert("В файле нет записей."); return; }
+        if (!confirm("Вернуть " + list.length + " записей? То, что сейчас в кассе, заменится архивом.")) return;
+        tx = list;
+        persist();
+      } catch (err) {
+        alert("Файл не открылся. Возьмите JSON, который касса скачала сама.");
+      }
+    };
+    reader.readAsText(f);
+  };
+  monthFilter.onchange = renderLists;
+  searchInput.oninput = renderLists;
   document.getElementById("date").valueAsDate = new Date();
+  fuelDate.valueAsDate = new Date();
+  marketDate.valueAsDate = new Date();
+  ymDate.valueAsDate = new Date();
+  spendDate.valueAsDate = new Date();
 
-  load();
+  try {
+    var th = localStorage.getItem(THEME);
+    applyTheme(th === "light" ? "light" : "dark");
+  } catch (e) { applyTheme("dark"); }
+  try { if (sessionStorage.getItem(AUTH) === "1") director = true; } catch (e) {}
+  try {
+    var local = JSON.parse(localStorage.getItem(KEY) || "[]");
+    if (Array.isArray(local) && local.length) tx = local;
+  } catch (e) {}
+  firebase.database().ref(".info/connected").on("value", function (s) { fbWarn.style.display = s.val() === true ? "none" : "block"; });
+  ref.on("value", function (snap) {
+    var val = snap.val();
+    if (Array.isArray(val)) tx = val;
+    else if (val && typeof val === "object") tx = Object.values(val);
+    else tx = [];
+    render();
+  }, function () { fbWarn.style.display = "block"; render(); });
   render();
-  try { if (sessionStorage.getItem(AUTH) === "1") unlock(); } catch (e) {}
 })();
 </script>
 </body>
