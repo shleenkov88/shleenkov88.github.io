@@ -529,7 +529,7 @@
     <img class="ym-full" src="ym.png" alt="Яндекс Маркет">
     <div>
       <h2>Я.Маркет</h2>
-      <div class="tiny">депозит площадки</div>
+      <div class="tiny">депозит площадки · с доли после покупки</div>
     </div>
   </div>
   <div class="grid3" style="margin-top:12px">
@@ -554,7 +554,7 @@
     </div>
     <div><label>Что купили</label><input id="ymComment" placeholder="Ткань, фурнитура" /></div>
     <button class="primary" type="submit" id="ymSubmit">Записать покупку</button>
-    <p class="tiny">Пополнение — из общей кассы на двоих. Покупки снимают только депозит, с долей больше не списываются.</p>
+    <p class="tiny">Пополнение только кладёт деньги на Я.Маркет — с зарплаты ещё не снимает. Покупка списывает депозит и долю той, кто купил.</p>
   </form>
   <ul id="ymList"></ul>
 </section>
@@ -645,7 +645,7 @@
   <p id="empty" class="tiny" style="padding:16px 0;display:none">Пока пусто</p>
 </section>
 
-<footer class="foot">Деньги делим: Насте 70%, Наташе 30%. Топливо и депозит Я.Маркета — из общей кассы. Ozon и прочее снимаются с доли той, кто купил.</footer>
+<footer class="foot">Деньги делим: Насте 70%, Наташе 30%. Топливо — из общей кассы. Я.Маркет снимается с доли только когда купили. Ozon и прочее — с доли той, кто купил.</footer>
 
 <script>
 (function () {
@@ -874,6 +874,7 @@
         market += a;
         var yw = ownerOf(t);
         if (yw) {
+          personal[yw] += a;
           byWho[yw] += a;
           byPlaceWho[yw].ym += a;
         }
@@ -897,7 +898,7 @@
         if (byPlace[mp] != null) byPlace[mp] += a;
       } else if ((t.type === "salary" || t.type === "personal") && paid[t.partner] != null) paid[t.partner] += a;
     }
-    var net = income - fuel - ymIn - commonExpense;
+    var net = income - fuel - commonExpense;
     var shares = { nastya: net * SHARE.nastya, natalia: net * SHARE.natalia };
     var keys = Object.keys(byFuelMo).sort();
     var rest = 0;
@@ -914,7 +915,7 @@
       market: market, net: net, fuelMonths: fuelMonths, nowYm: nowYm,
       personal: personal, paid: paid, shares: shares, byWho: byWho, byPlace: byPlace, byPlaceWho: byPlaceWho,
       bal: { nastya: shares.nastya - paid.nastya - personal.nastya, natalia: shares.natalia - paid.natalia - personal.natalia },
-      cash: net - paid.nastya - paid.natalia - personal.nastya - personal.natalia
+      cash: net - paid.nastya - paid.natalia - personal.nastya - personal.natalia - (ymIn - ymOut)
     };
   }
 
