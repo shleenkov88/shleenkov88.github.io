@@ -64,9 +64,9 @@
         var(--bg);
       background-attachment: fixed;
     }
-    h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; }
+    h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; white-space: nowrap; }
     h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
-    .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 2px; white-space: nowrap; }
     .top {
       display: flex;
       justify-content: space-between;
@@ -370,16 +370,27 @@
       padding: 6px 10px;
       box-sizing: content-box;
     }
-    .gpn-sm, .ym-sm {
-      height: 28px;
-      width: 28px;
+    .gpn-sm {
+      height: 22px;
+      width: 22px;
       object-fit: contain;
       background: #fff;
-      border-radius: 8px;
-      padding: 3px;
+      border-radius: 6px;
+      padding: 2px;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
-    .label.with-logo { display: flex; align-items: center; gap: 6px; }
+    .ym-sm {
+      height: 22px;
+      width: 40px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 6px;
+      padding: 3px 5px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .label.with-logo { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     #headFuel, #headYm { cursor: pointer; }
     .tiny { font-size: 12px; color: var(--muted); }
     .foot { color: var(--subtle); font-size: 12px; line-height: 1.5; margin-top: 24px; }
@@ -417,6 +428,9 @@
     @media (max-width: 480px) {
       body { padding: 16px 12px calc(140px + env(safe-area-inset-bottom, 0px)); }
       .card { padding: 14px; }
+      h1 { font-size: 17px; }
+      .sub { font-size: 12px; }
+      .top .ops .chip { min-height: 36px; padding: 6px 12px; font-size: 12px; }
       .val { font-size: 18px; }
       .mini .val { font-size: 16px; }
       .row { font-size: 12px; padding: 7px 0; }
@@ -452,7 +466,7 @@
     <img class="brand-logo" src="logo.png" width="48" height="48" alt="ООО «Нейт»">
     <div>
       <h1>ООО «Нейт»</h1>
-      <div class="sub">Швейная фабрика · Настя 70% · Наташа 30%</div>
+      <div class="sub">Настя 70% · Наташа 30%</div>
     </div>
   </div>
   <div class="ops">
@@ -461,7 +475,7 @@
   </div>
 </header>
 <div id="fbWarn" class="warn">Нет связи с облаком. Пишу в память телефона.</div>
-<p id="guestNote" class="note">Заправку, покупку на Ozon и прочие траты можно записать сразу. Приход, выдачу, топливо и депозит Я.Маркета вносит Наташа — кнопка «Войти».</p>
+<p id="guestNote" class="note">Покупки и заправки можно записать сразу. Приход и выдачу вносит Наташа — кнопка «Войти».</p>
 
 <div class="grid4">
   <div class="card"><div class="label">Пришло</div><div class="val" id="sIncome">0 ₽</div></div>
