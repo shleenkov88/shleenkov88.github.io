@@ -285,22 +285,18 @@
     .logo-img {
       width: 40px; height: 40px;
       border-radius: 12px;
-      object-fit: contain;
-      padding: 5px;
+      object-fit: cover;
       flex-shrink: 0;
-      background: #fff;
-      box-sizing: border-box;
-      box-shadow: 0 0 0 1px rgba(127,127,127,0.16);
+      background: #111;
     }
-    .block-logo {
-      width: 48px; height: 48px;
-      border-radius: 14px;
-      object-fit: contain;
-      padding: 6px;
+    .block-logo, .ozon-full, .other-full {
+      height: 56px;
+      width: auto;
+      max-width: 200px;
+      border-radius: 12px;
+      object-fit: cover;
       flex-shrink: 0;
-      background: #fff;
-      box-sizing: border-box;
-      box-shadow: 0 0 0 1px rgba(127,127,127,0.16);
+      background: #111;
     }
     .ym-full {
       height: 40px;
@@ -323,7 +319,25 @@
       min-height: 0;
       cursor: pointer;
     }
-    .place-top { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .place-logo {
+      width: 100%;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #111;
+    }
+    .place[data-place="ym"] .place-logo {
+      object-fit: contain;
+      background: #000;
+      padding: 8px 14px;
+      box-sizing: border-box;
+    }
+    .place[data-place="fuel"] .place-logo {
+      object-fit: contain;
+      background: #fff;
+      padding: 8px 14px;
+      box-sizing: border-box;
+    }
     .place-meta { flex: 1; min-width: 0; }
     .place-bar { height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; width: 100%; }
     html[data-theme="light"] .place-bar { background: rgba(0, 0, 0, 0.08); }
@@ -576,7 +590,7 @@
 
 <section class="card" id="secOzon">
   <div class="fuel-head">
-    <img class="block-logo" src="ozon.png" alt="Ozon">
+    <img class="ozon-full" src="ozon.jpg" alt="Ozon">
     <div>
       <h2>Ozon</h2>
       <div class="tiny">с доли той, кто купил</div>
@@ -599,7 +613,7 @@
 
 <section class="card" id="secOther">
   <div class="fuel-head">
-    <img class="block-logo" src="other.png" alt="Прочее">
+    <img class="other-full" src="other.jpg" alt="Прочее">
     <div>
       <h2>Прочее</h2>
       <div class="tiny">с доли той, кто потратил</div>
@@ -671,10 +685,10 @@
   var SHARE = { nastya: 0.7, natalia: 0.3 };
   var NAMES = { nastya: "Настя", natalia: "Наташа" };
   var CATS = {
-    ozon: { name: "Ozon", short: "OZ", color: "#005BFF", img: "ozon.png", sec: "secOzon" },
-    ym: { name: "Яндекс Маркет", short: "YM", color: "#FFCC00", img: "ym-mark.png", sec: "secYm" },
-    fuel: { name: "Топливо", short: "ГП", color: "#1177C1", img: "gazprom-neft-mark.png", sec: "secFuel" },
-    other: { name: "Прочее", short: "Пр", color: "#9B1B4A", img: "other.png", sec: "secOther" }
+    ozon: { name: "Ozon", short: "OZ", color: "#005BFF", img: "ozon.jpg", sec: "secOzon" },
+    ym: { name: "Яндекс Маркет", short: "YM", color: "#FFCC00", img: "ym.png", sec: "secYm" },
+    fuel: { name: "Топливо", short: "ГП", color: "#1177C1", img: "gazprom-neft.png", sec: "secFuel" },
+    other: { name: "Прочее", short: "Пр", color: "#9B1B4A", img: "other.jpg", sec: "secOther" }
   };
   var PLACES = { ozon: CATS.ozon, ym: CATS.ym, other: CATS.other };
   var PURP = { ads: "Реклама", commission: "Комиссия", goods: "Закупка", delivery: "Доставка", pack: "Упаковка", other: "Прочее" };
@@ -800,7 +814,7 @@
     var total = m.byWho[who] || 0;
     placeGrid.innerHTML = Object.keys(CATS).map(function (k) {
       var pct = total > 0 ? Math.round((mine[k] / total) * 100) : 0;
-      return '<button type="button" class="place" data-place="' + k + '"><div class="place-top">' + logo(k) + '<div class="place-meta"><div class="tiny">' + esc(CATS[k].name) + " · " + pct + '%</div><div class="val" style="font-size:14px">' + rub(mine[k]) + "</div></div></div><div class=\"place-bar\"><span style=\"width:" + pct + "%;background:" + CATS[k].color + '"></span></div></button>';
+      return '<button type="button" class="place" data-place="' + k + '"><img class="place-logo" src="' + CATS[k].img + '" alt=""><div class="place-meta"><div class="tiny">' + esc(CATS[k].name) + " · " + pct + '%</div><div class="val" style="font-size:14px">' + rub(mine[k]) + "</div></div><div class=\"place-bar\"><span style=\"width:" + pct + "%;background:" + CATS[k].color + '"></span></div></button>';
     }).join("");
     bindPlat();
     renderLists();
