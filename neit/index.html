@@ -393,6 +393,35 @@
     .label.with-logo { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     #headFuel, #headYm { cursor: pointer; }
     .tiny { font-size: 12px; color: var(--muted); }
+    .hist { margin-top: 4px; }
+    .hist summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 2px;
+      min-height: 44px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      user-select: none;
+    }
+    .hist summary::-webkit-details-marker { display: none; }
+    .hist summary::after {
+      content: "";
+      width: 8px; height: 8px;
+      border-right: 2px solid var(--muted);
+      border-bottom: 2px solid var(--muted);
+      transform: rotate(45deg);
+      transition: transform 0.2s ease;
+      margin-right: 6px;
+    }
+    .hist[open] summary::after {
+      transform: rotate(-135deg);
+      margin-top: 6px;
+    }
     .foot { color: var(--subtle); font-size: 12px; line-height: 1.5; margin-top: 24px; }
     .note { background: var(--elevated); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
     .donut-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
@@ -564,7 +593,10 @@
     <button class="primary" type="submit" id="fuelSubmit">Записать заправку</button>
     <p class="tiny">Пополнение только кладёт деньги на карту — с зарплаты ещё не снимает. Заправка списывает карту и долю той, кто заправилась.</p>
   </form>
-  <ul id="fuelList"></ul>
+  <details class="hist">
+    <summary>История</summary>
+    <ul id="fuelList"></ul>
+  </details>
 </section>
 
 <section class="card" id="secYm">
@@ -599,7 +631,10 @@
     <button class="primary" type="submit" id="ymSubmit">Записать покупку</button>
     <p class="tiny">Пополнение только кладёт деньги на Я.Маркет — с зарплаты ещё не снимает. Покупка списывает депозит и долю той, кто купил.</p>
   </form>
-  <ul id="ymList"></ul>
+  <details class="hist">
+    <summary>История</summary>
+    <ul id="ymList"></ul>
+  </details>
 </section>
 
 <section class="card" id="secOzon">
@@ -622,7 +657,10 @@
     <div><label>Что купили</label><input id="marketComment" placeholder="Наушники, зарядка" /></div>
     <button class="primary" type="submit">Записать покупку</button>
   </form>
-  <ul id="marketList"></ul>
+  <details class="hist">
+    <summary>История</summary>
+    <ul id="marketList"></ul>
+  </details>
 </section>
 
 <section class="card" id="secOther">
@@ -645,7 +683,10 @@
     <div><label>Где и что купили</label><input id="spendComment" placeholder="Аптека, продукты, такси" /></div>
     <button class="primary" type="submit">Записать трату</button>
   </form>
-  <ul id="spendList"></ul>
+  <details class="hist">
+    <summary>История</summary>
+    <ul id="spendList"></ul>
+  </details>
 </section>
 
 <div class="tabs">
