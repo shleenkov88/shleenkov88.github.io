@@ -32,6 +32,16 @@
   <style id="ruler-fix">
 .kind-ruler{background:transparent!important;border:none!important;box-shadow:none!important;min-height:0!important;height:calc(22px / var(--z, 1))!important}
 .kind-ruler:before{content:"";position:absolute;left:0;right:0;top:50%;height:calc(3px / var(--z, 1));margin-top:calc(-1.5px / var(--z, 1));background:#1f3544}
+.measure-live{display:none;z-index:5;background:#fff;color:var(--color-clay);border:1px solid var(--color-clay);border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none}
+.measure-band{display:none;pointer-events:none}
+@media (width>=900px) and (hover:hover) and (pointer:fine){
+  .kind-ruler .handle-rotate,.kind-ruler .handle-resize{
+    width:14px!important;height:14px!important;border-radius:50%!important;border:2px solid #fff!important;
+    background:var(--color-info)!important;top:50%!important;margin:0!important;transform:translateY(-50%)!important
+  }
+  .kind-ruler .handle-rotate{left:-8px!important;cursor:grab!important}
+  .kind-ruler .handle-resize{right:-8px!important;cursor:grab!important}
+}
 @media (width>=900px) and (hover:hover) and (pointer:fine){
   html,body,#root{touch-action:auto!important}
   .desk-sidebar,.desk-sidebar *,.prop-card,.prop-card *{touch-action:auto!important}
