@@ -33,9 +33,13 @@
 .kind-ruler{background:transparent!important;border:none!important;box-shadow:none!important;min-height:0!important;height:calc(22px / var(--z, 1))!important}
 .kind-ruler:before{content:"";position:absolute;left:0;right:0;top:50%;height:calc(3px / var(--z, 1));margin-top:calc(-1.5px / var(--z, 1));background:#1f3544}
 @media (width>=900px) and (hover:hover) and (pointer:fine){
+  html,body,#root{touch-action:auto!important}
+  .desk-sidebar,.desk-sidebar *,.prop-card,.prop-card *{touch-action:auto!important}
+  .print-map,.print-map *{touch-action:none!important}
   .phone-shell{display:flex!important;flex-direction:column!important;min-height:0;height:100%}
   .phone-stage{flex:1 1 auto!important;min-height:0!important;height:auto!important;display:flex;flex-direction:column}
   .print-map{flex:1 1 auto!important;min-height:0!important;height:auto!important}
+  .map-obj:not(.kind-ruler)>.handle-rotate,.map-obj:not(.kind-ruler)>.handle-resize{display:block!important}
 }
 </style>
   <style id="all-css">
