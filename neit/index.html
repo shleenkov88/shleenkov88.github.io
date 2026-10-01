@@ -511,7 +511,7 @@
 
 <div class="grid4">
   <div class="card"><div class="label">Пришло</div><div class="val" id="sIncome">0 ₽</div></div>
-  <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div><div class="tiny" id="sCashNote">на руках</div></div>
+  <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div><div class="tiny" id="sCashNote">на руках</div><div class="tiny" id="sCashRes" style="display:none;margin-top:4px"></div></div>
   <div class="card" id="headFuel"><div class="label with-logo"><img class="gpn-sm" src="gazprom-neft-mark.png" alt="">Топливо</div><div class="val" id="sCard">0 ₽</div><div class="tiny">на карте</div></div>
   <div class="card" id="headYm"><div class="label with-logo"><img class="ym-sm" src="ym-mark.png" alt="">Я.Маркет</div><div class="val" id="sYmHead">0 ₽</div><div class="tiny">на депозите</div></div>
 </div>
@@ -1053,6 +1053,9 @@
     sCash.textContent = rub(m.cash);
     sCash.className = "val " + (m.cash < 0 ? "bad" : "");
     sCashNote.textContent = m.cash < 0 ? "минус: расходов и резервов больше, чем пришло" : "на руках";
+    var reserve = m.card + m.ymCard;
+    sCashRes.style.display = reserve > 0 ? "block" : "none";
+    sCashRes.textContent = "На карте и депозите: " + rub(reserve) + " — уже вычтено из кассы, но ещё не потрачено";
     sCard.textContent = rub(m.card);
     sCard.className = "val " + (m.card < 0 ? "bad" : "ok");
     sYmHead.textContent = rub(m.ymCard);
