@@ -511,7 +511,7 @@
 
 <div class="grid4">
   <div class="card"><div class="label">Пришло</div><div class="val" id="sIncome">0 ₽</div></div>
-  <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div><div class="tiny">на руках</div></div>
+  <div class="card"><div class="label">Касса</div><div class="val" id="sCash">0 ₽</div><div class="tiny" id="sCashNote">на руках</div></div>
   <div class="card" id="headFuel"><div class="label with-logo"><img class="gpn-sm" src="gazprom-neft-mark.png" alt="">Топливо</div><div class="val" id="sCard">0 ₽</div><div class="tiny">на карте</div></div>
   <div class="card" id="headYm"><div class="label with-logo"><img class="ym-sm" src="ym-mark.png" alt="">Я.Маркет</div><div class="val" id="sYmHead">0 ₽</div><div class="tiny">на депозите</div></div>
 </div>
@@ -740,7 +740,7 @@
       <p><b>Как делим.</b> С прихода Насте 70%, Наташе 30%. Потом с доли каждой снимаются её покупки и заправки.</p>
       <p><b>Топливо и Я.Маркет.</b> Пополнение только кладёт деньги на карту или депозит — зарплату ещё не трогает. Списывается, когда заправились или купили, и только у той, кто потратила.</p>
       <p><b>Ozon и Прочее.</b> Сразу с доли той, кто купила.</p>
-      <p><b>Цифры в шапке.</b> Пришло — все поступления. Касса — живые деньги. Топливо и Я.Маркет — сколько лежит на карте и депозите.</p>
+      <p><b>Цифры в шапке.</b> Пришло — все поступления. Касса = пришло минус выданные зарплаты, покупки, топливо и Я.Маркет. Если там минус — расходов и отложенного на карту и депозит больше, чем пришло, ждите следующий приход. Топливо и Я.Маркет — сколько лежит на карте и депозите.</p>
       <p><b>История.</b> В каждом блоке открывается стрелкой. Полный список — вкладка «История». CSV — таблица в Excel. «Сброс» сначала скачивает архив, потом очищает. «Вернуть» загружает этот архив.</p>
       <p><b>Дата</b> сама ставит сегодняшний день. Если запись за вчера — дату можно сменить.</p>
     </div>
@@ -1051,6 +1051,8 @@
     var m = metrics();
     sIncome.textContent = rub(m.income);
     sCash.textContent = rub(m.cash);
+    sCash.className = "val " + (m.cash < 0 ? "bad" : "");
+    sCashNote.textContent = m.cash < 0 ? "минус: расходов и резервов больше, чем пришло" : "на руках";
     sCard.textContent = rub(m.card);
     sCard.className = "val " + (m.card < 0 ? "bad" : "ok");
     sYmHead.textContent = rub(m.ymCard);
